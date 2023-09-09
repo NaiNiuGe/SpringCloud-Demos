@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>学生管理</title>
+</head>
+<body>
+<div class="header">
+    <h1>学生列表</h1>
+    <div class="button-row">
+        <button class="add-button" onclick="location.href='/Student_addOrUpdate.html'">添加学生</button>
+        <button class="refresh-button" onclick="location.reload(true)">刷新</button>
+    </div>
+</div>
+<table>
+    <tr>
+        <th>序号</th>
+        <th>学号</th>
+        <th>姓名</th>
+        <th>性别</th>
+        <th>年龄</th>
+        <th>操作1</th>
+        <th>操作2</th>
+    </tr>
+
+    <!-- 使用 Thymeleaf 迭代学生列表 -->
+    <tr th:each="student,studentIndex  : ${students}">
+        <td th:text="${studentIndex.count}"></td>
+        <td th:text="${student.stuno}"></td>
+        <td th:text="${student.stuname}"></td>
+        <td th:text="${student.gender}"></td>
+        <td th:text="${student.age}"></td>
+
+        <td>
+            <!-- 删除按钮 -->
+            <button th:onclick="deleteStudent([[${student.stuno}]])">删除</button>
+        </td>
+        <td>
+            <!-- 修改按钮 -->
+            <button th:onclick="updateStudent([[${student.stuno}]])">修改</button>
+        </td>
+    </tr>
+</table>
+
+<!--&lt;!&ndash; 增加按钮 &ndash;&gt;-->
+<!--<button class="add-button" onclick="location.href='/add-student.html'">添加学生</button>-->
+<!--<button class="refresh-button" onclick="location.reload(true)">刷新</button>-->
+
+<style>
+    .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .header h1 {
+        margin: 0;
+    }
+
+    .button-row {
+        display: flex;
+        gap: 10px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        margin-top: 15px;
+    }
+
+    th, td {
+        padding: 8px;
+        text-align: center;
+        border: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    tr:hover {
+        background-color: #f5f5f5;
+    }
+
+    button {
+
+        background-color: #4CAF50; /* 设置背景颜色 */
+        border: none; /* 移除边框 */
+        color: white; /* 设置文本颜色 */
+        padding: 15px 30px; /* 设置内边距 */
+        text-align: center; /* 水平居中文本 */
+        text-decoration: none; /* 移除文本装饰 */
+        display: inline-block; /* 设置为行内元素 */
+        font-size: 16px; /* 设置字体大小 */
+        cursor: pointer; /* 显示一个点击指针 */
+        border-radius: 4px; /* 设置圆角边框 */
+        margin-top: 10px;
+
+    }
+
+    button:hover {
+        background-color: #45a049;
+    }
+
+    /* 添加学生按钮 */
+    .add-button {
+        background-color: #4CAF50; /* 设置背景颜色 */
+        border: none; /* 移除边框 */
+        color: white; /* 设置文本颜色 */
+        padding: 10px 20px; /* 设置内边距 */
+        text-align: center; /* 水平居中文本 */
+        text-decoration: none; /* 移除文本装饰 */
+        display: inline-block; /* 设置为行内元素 */
+        font-size: 16px; /* 设置字体大小 */
+        cursor: pointer; /* 显示一个点击指针 */
+        border-radius: 4px; /* 设置圆角边框 */
+        margin-top: 20px;
+    }
+
+    /* 刷新按钮 */
+    .refresh-button {
+        margin-left: 20px;
+        margin-top: 20px;
+        margin-right: 140px;
+        background-color: #008CBA; /* 设置背景颜色 */
+        border: none; /* 移除边框 */
+        color: white; /* 设置文本颜色 */
+        padding: 10px 20px; /* 设置内边距 */
+        text-align: center; /* 水平居中文本 */
+        text-decoration: none; /* 移除文本装饰 */
+        display: inline-block; /* 设置为行内元素 */
+        font-size: 16px; /* 设置字体大小 */
+        cursor: pointer; /* 显示一个点击指针 */
+        border-radius: 4px; /* 设置圆角边框 */
+    }
+</style>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function updateStudent(stuno) {
+        location.href='/Student_addOrUpdate.html?stuno='+stuno
+    }
+
+
+
+    // 定义删除学生函数
+    function deleteStudent(studentId) {
+        if (confirm("确定要删除该学生吗？")) {
+            // 在此处编写发送删除学生请求的逻辑，使用 AJAX 或者表单提交等方式
+            $.ajax({
+                url: "/student/",
+                type: "DELETE",
+                data: {"id": studentId},
+                success: function () {
+                    alert("删除成功")
+                    // 删除成功后，刷新页面或者从列表中移除该学生行
+                    location.reload(true)
+                },
+                error: function (xhr, status, error) {
+                    // 请求失败的处理
+                    console.error("发生错误:", error);
+                    // 删除成功后，刷新页面或者从列表中移除该学生行
+                    location.reload(true)
+                }
+            });
+        }
+    }
+
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+server:
+  port: 7001
+eureka:
+  instance:
+    hostname: demo-eureka-7001
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://demo-eureka-7002:7002/eureka,http://demo-eureka-7003:7003/eureka
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  info:
+    env:
+      enabled: true
+
+spring:
+  application:
+    name: eureka7001

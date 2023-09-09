@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: consumer
+  mvc:
+    servlet:
+      load-on-startup: 1
+eureka:
+  instance:
+    prefer-ip-address: ${EUREKA_INSTANCE_PERFER_IP_ADDRESS:true}
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://demo-eureka-7001:7001/eureka,http://demo-eureka-7002:7002/eureka,http://demo-eureka-7003:7003/eureka
+server:
+  port: 8000

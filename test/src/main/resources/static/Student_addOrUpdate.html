@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新增学生</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .container {
+            max-width: 550px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+
+
+
+
+
+
+
+
+
+
+    </style>
+</head>
+<body>
+<h1 id="title">Student Add</h1>
+<div class="container">
+    <form id="studentForm">
+        <input type="hidden" id="stuno" name="stuno" required>
+
+        <div class="form-group">
+            <label for="name">姓名:</label>
+            <input type="text" id="name" name="stuname" required>
+            <span id="nameError" style="color: red;"></span>
+        </div>
+        <div class="form-group">
+            <label for="age">年龄:</label>
+            <input type="text" id="age" name="age" required>
+            <span id="ageError" style="color: red;"></span>
+        </div>
+        <!--        <div class="form-group">-->
+        <!--            <label for="gender">性别</label>-->
+        <!--            <input type="text" id="gender" name="gender" required>-->
+        <!--        </div>-->
+        <label>性别:</label>
+        <div class="form-group">
+            <div class="radio-group">
+                <label>
+                    <input type="radio" name="gender" id="男性" value="男性" required> 男性
+                </label>
+                <label>
+                    <input type="radio" name="gender" id="女性" value="女性" required> 女性
+                </label>
+                <label>
+                    <input type="radio" name="gender" id="未知" value="未知" required> 未知
+                </label>
+            </div>
+            <span id="genderError" style="color: red;"></span>
+        </div>
+
+        <button type="submit">提交</button>
+    </form>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+
+    var is_update = false
+    window.onload = function () {
+        // 获取当前 URL 中的查询参数
+        var urlParams = new URLSearchParams(window.location.search);
+        // 获取指定参数的值
+        var stuno = urlParams.get('stuno')
+        if (stuno) {
+            //获取学生信息，进行信息回显
+            $.ajax({
+                url: "/student/" + stuno,
+                type: "GET"
+            }).then((data) => {
+                is_update = true
+                age_legal=true
+                name_legal=true
+
+                var title = document.getElementById("title")
+                title.textContent = "Student Update"
+
+                var stuno = document.getElementById("stuno")
+                stuno.value = data.stuno
+
+                var name = document.getElementById("name")
+                name.value = data.stuname
+
+                var age = document.getElementById("age")
+                age.value = data.age
+
+                var gender = data.gender
+                var gender_curr = document.getElementById(gender)
+                gender_curr.checked = true
+            });
+        }
+    };
+
+    //TODU
+    //CHECK LEGAL DATA
+    const nameInput = document.getElementById("name");
+    const nameError = document.getElementById("nameError");
+    var name_legal=false;
+    nameInput.addEventListener("blur", () => {
+        const name = nameInput.value.trim();
+
+        if (name === "") {
+            nameError.textContent = "请输入姓名";
+        } else if(name.length>10){
+            nameError.textContent = "姓名长度不得大于10";
+        }else{
+            nameError.textContent = "";
+            name_legal=true
+        }
+    });
+    const ageInput = document.getElementById("age");
+    const ageError = document.getElementById("ageError");
+    var age_legal=false;
+    ageInput.addEventListener("blur", () => {
+        const age = ageInput.value.trim();
+
+        if (isNaN(age)) {
+            ageError.textContent = "请输入有效的数字";
+            return;
+        }
+
+        const number = parseFloat(age);
+
+        // 判断数字是否大于0且小于110
+        if (number > 0 && number < 110) {
+            age_legal=true
+            ageError.textContent = "";
+        } else {
+            ageError.textContent = "请输入大于0小于110的数字";
+        }
+    });
+
+
+
+
+    document.getElementById("studentForm").addEventListener("submit", function (event) {
+
+        event.preventDefault();
+        var formData = new FormData(this);
+        var student = {};
+        formData.forEach(function (value, key) {
+            student[key] = value;
+        });
+        // alert(JSON.stringify(student))
+        if(!age_legal || !name_legal){
+            if(ageError!="" || nameError!=""){
+                alert("请校验您的输入!")
+                return;
+            }
+        }
+        if (!is_update) {
+            // 这里可以将学生数据插入到后端进行处理
+            sendData("/student", "POST", student);
+        } else {
+            //更新
+            sendData("/student", "PUT", student);
+        }
+    });
+
+
+    function sendData(url, method, body) {
+        return fetch(url, {
+            method: method,
+            body: JSON.stringify(body),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                // 跳转回去
+                // alert("新增成功");
+                location.href = "/student/list";
+            })
+            .catch(error => {
+                // 处理错误情况
+                console.error(error);
+            });
+    }
+
+
+
+</script>
+</body>
+</html>
